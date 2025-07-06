@@ -2,10 +2,11 @@
 
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-from config import BOT_TOKEN, GPT_API_KEY
+from config import BOT_TOKEN, GPT_API_KEY, DOLLAR_RATE
 from technical_analysis import analyze_all, analyze_symbol
 import datetime
 import openai
+from technical_analysis import analyze_symbol
 
 bot = telebot.TeleBot(BOT_TOKEN)
 openai.api_key = GPT_API_KEY
@@ -41,16 +42,18 @@ def send_welcome(message):
 def callback_handler(call):
     if call.data == "profitable":
         bot.send_message(call.message.chat.id, "🔄 در حال بررسی ارزهای سودآور...")
-        from technical_analysis import analyze_symbol
         result = analyze_symbol("BTCUSDT")
         results = [result] if result else []
 
         now = datetime.datetime.now().strftime("%H:%M")
         if results:
             for res in results[:5]:
+                price_usdt = float(res['price'])
+                price_irt = int(price_usdt * DOLLAR_RATE)
                 msg = (
                     f"📈 اسم ارز: {res['symbol']}\n"
-                    f"💰 قیمت ارز: {res['price']} USDT\n"
+                    f"💰 قیمت ارز دلار: {price_usdt:.2f} USDT\n"
+                    f"💰 قیمت ارز تومان: {price_irt} تومان\n"
                     f"🔼 درصد سود احتمالی: {res['profit_chance']}%\n"
                     f"🔽 درصد ضرر احتمالی: {res['loss_chance']}%\n"
                     f"⏱ تایم فریم: 30 دقیقه\n"
@@ -80,10 +83,14 @@ def handle_custom_symbol(message):
         bot.send_message(message.chat.id, "❌ خطا در تحلیل این ارز.")
         return
 
+    price_usdt = float(result['price'])
+    price_irt = int(price_usdt * DOLLAR_RATE)
     now = datetime.datetime.now().strftime("%H:%M")
+
     msg = (
         f"📈 اسم ارز: {result['symbol']}\n"
-        f"💰 قیمت ارز: {result['price']} USDT\n"
+        f"💰 قیمت ارز: {price_usdt:.2f} USDT | {price_irt:,} تومان\n"
+        f"💰 قیمت ارز: {price_usdt:.2f} تومان\n"
         f"🔼 درصد سود احتمالی: {result['profit_chance']}%\n"
         f"🔽 درصد ضرر احتمالی: {result['loss_chance']}%\n"
         f"⏱ تایم فریم: 30 دقیقه\n"
