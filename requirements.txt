@@ -1,3 +1,4 @@
-aiogram==3.0.0b7
-aiohttp==3.8.5
-aiohttp_socks==0.6.0
+pyTelegramBotAPI
+requests
+pandas
+openai
