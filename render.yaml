@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: crypto-telegram-bot
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python main.py"
+    envVars:
+      - key: BOT_TOKEN
+        fromSecret: BOT_TOKEN
+      - key: GPT_API_KEY
+        fromSecret: GPT_API_KEY
+      - key: DOLLAR_RATE
+        value: "60000"
